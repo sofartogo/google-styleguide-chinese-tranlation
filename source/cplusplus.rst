@@ -19,7 +19,7 @@ C++
 
 为了保证唯一性, ``define`` 声明必须基于工程代码树的全路径来命名。比如, ``foo`` 工程中的 ``foo/src/bar/baz.h`` 文件应该有如下的保护声明：
 
-.. code_block:: c
+.. code-block:: c
 
     #ifndef FOO_BAR_BAZ_H_
     #define FOO_BAR_BAZ_H_
@@ -31,4 +31,24 @@ C++
 
 前向声明
 ``````````
+
+定义 ：
+""""""""""
+
+to be continued.
+
+优点 ：
+"""""""""""
+
+to be continued.
+
+缺点 :
+"""""""""
+
+to be continue.
+
+总结 ：
+""""""""""
+
+to be continued.
 
