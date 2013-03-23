@@ -1,0 +1,83 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>C++ &mdash; google-styleguide-chinese-translation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="google-styleguide-chinese-translation" href="index.html" />
+    <link rel="prev" title="序言" href="introduction.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>google-styleguide-chinese-translation</span></a></h1>
+        <h2 class="heading"><span>C++</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="introduction.html">序言</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="c">
+<h1>C++<a class="headerlink" href="#c" title="Permalink to this headline">¶</a></h1>
+<p>这一部分介绍 google C++ 项目遵循的编程规范。包括头文件、类、命名等很多方面的约定, 还有一些编程小技巧。</p>
+<div class="section" id="id1">
+<h2>头文件<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>一般来说，每一个 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件都应该有一个和它相对应的 <tt class="docutils literal"><span class="pre">.h</span></tt> 文件。当然也有一些例外的情况，比如单元测试代码和只包含 <tt class="docutils literal"><span class="pre">main()</span></tt> 函数的比较小的 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件。</p>
+<p>正确的使用头文件能够使你代码的可读性、规模和性能有一个巨大的不同。</p>
+<p>下面的规则将改正你在使用头文件上面的误区。</p>
+<p>### <tt class="docutils literal"><span class="pre">#define</span></tt> 保护</p>
+<p>所有的头文件都要有 <tt class="docutils literal"><span class="pre">#define</span></tt> 保护以免被多次包含。符号名称的格式是 <tt class="docutils literal"><span class="pre">&lt;PROJECT&gt;_&lt;PATH&gt;_&lt;FILE&gt;_H_</span></tt> .</p>
+<p>为了保证唯一性, <tt class="docutils literal"><span class="pre">define</span></tt> 声明必须基于工程代码树的全路径来命名。比如, <tt class="docutils literal"><span class="pre">foo</span></tt> 工程中的 <tt class="docutils literal"><span class="pre">foo/src/bar/baz.h</span></tt> 文件应该有如下的保护声明：</p>
+<p>### 前向声明</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="introduction.html">序言</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, wangwei.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
