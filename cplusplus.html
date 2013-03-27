@@ -50,7 +50,11 @@
         
   <div class="section" id="c">
 <h1>C++<a class="headerlink" href="#c" title="Permalink to this headline">¶</a></h1>
-<p>这一部分介绍 google C++ 项目遵循的编程规范。包括头文件、类、命名等很多方面的约定, 还有一些编程小技巧。</p>
+<p>C++ 是Google许多开源项目的主要开发编程语言。每个 C++ 程序员都知道，这种语言有许多强大的特性，但是这种强大也带来了程序的复杂性，这些复杂性会使程序更加容易出错，也更难去阅读和掌握。</p>
+<p>这篇指南的目的是通过详细描述不管写或者不写 C++ 代码都会碰到的复杂性来管理它们。这些规则使程序仍然可以高效的使用 C++ 特性的同时也易于管理。</p>
+<p>风格，也称为可读性，是我们用来管理 C++ 代码的约定。风格这个词有点用词不当，因为这些约定不止涵盖了源代码文件的格式。</p>
+<p>一种我们保持程序代码易于管理的方法是保持一致性。程序员能够快速看懂其他人的代码是非常重要的。保持一种统一的风格并且遵循约定意味着我们可以轻松的用“模式匹配”来推断什么是变量什么是不变量。一般来说，遵循规范和模式使代码更容易理解。有时，可能会有一些好的建议来改变这些规则，但是我们仍然保持它们的原样来保证一致性。</p>
+<p>这篇指南所讲的另一个方面是 C++ 的特性膨胀。 C++ 是一个有着许多高级特性的庞大编程语言，有时我们限制甚至禁止某些特性的使用。这样做是为了保持代码的简洁性，并且防止由于这些特性引起的不通错误和问题。这篇指南列出了这些特性并且解释了为什么要限制它们的使用。</p>
 <div class="section" id="id1">
 <h2>头文件<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>一般来说，每一个 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件都应该有一个和它相对应的 <tt class="docutils literal"><span class="pre">.h</span></tt> 文件。当然也有一些例外的情况，比如单元测试代码和只包含 <tt class="docutils literal"><span class="pre">main()</span></tt> 函数的比较小的 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件。</p>
@@ -74,21 +78,74 @@
 <p>可以通过前向声明普通类来避免不必要的 <tt class="docutils literal"><span class="pre">#include</span></tt> 包含。</p>
 <div class="section" id="id3">
 <h4>定义 ：<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
-<p>to be continued.</p>
+<p>“前向声明”是对类，函数或者没有相关定义的模板的声明。 不管用户代码用了什么符号， <tt class="docutils literal"><span class="pre">#include</span></tt> 行经常能被前向声明替代。</p>
 </div>
 <div class="section" id="id4">
 <h4>优点 ：<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
-<p>to be continued.</p>
+<ul class="simple">
+<li>不必要的 <tt class="docutils literal"><span class="pre">#include</span></tt> 行使编译器打开更多的文件并且执行更多的输入操作。</li>
+<li>当头文件里的内容改变后，不必要的 <tt class="docutils literal"><span class="pre">#include</span></tt> 也会使你的代码更经常的被重新编译</li>
+</ul>
 </div>
 <div class="section" id="id5">
 <h4>缺点 :<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
-<p>to be continue.</p>
+<ul class="simple">
+<li>在存在模板，定义类型，默认参数，使用声明特性程序中，有时决定一个前向声明的正确形式是很难的。</li>
+<li>有时在一段给定代码中决定使用前向声明还是 <tt class="docutils literal"><span class="pre">#include</span></tt> 包含是很难的，特别是当存在隐式转换操作的时候。在最极端的情况下， 用前向声明代替 <tt class="docutils literal"><span class="pre">#include</span></tt> 包含会悄悄的改变代码的作用。</li>
+<li>从头文件中前向声明多个符号要比直接 <tt class="docutils literal"><span class="pre">#include</span></tt> 这个头文件写的更详细。</li>
+<li>函数和模板的前向声明会妨碍他们所在的头文件为他们的API做兼容性改变。比如，扩大一个参数类型或者增加一个默认值的模板参数。</li>
+<li>从 <tt class="docutils literal"><span class="pre">std::</span></tt> 命名空间前向声明符号经常会由于未定义而失败。</li>
+<li>构建代码支持前向声明（比如，用指针成员代替对象成员）会使代码变得复杂而且运行缓慢。</li>
+<li>从前向声明获得的实际效率是未经证实的。</li>
+</ul>
 </div>
 <div class="section" id="id6">
 <h4>总结 ：<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>当要用到一个头文件中的函数声明的时候，就 <tt class="docutils literal"><span class="pre">#include</span></tt> 那个头文件。</li>
+<li>当要用到类模板的时候，最好 <tt class="docutils literal"><span class="pre">#include</span></tt> 那个头文件。</li>
+<li>当要用到一个普通的类时，依赖一个前向声明是可以的，但是要注意前向声明可能会没有效率甚至错误；当不确定的时候，就 <tt class="docutils literal"><span class="pre">#include</span></tt> 那个头文件。</li>
+<li>不要为了减掉一行 <tt class="docutils literal"><span class="pre">#include</span></tt> ，用指针去替换数据成员。</li>
+</ul>
+<p>总是 <tt class="docutils literal"><span class="pre">#include</span></tt> 那些提供你需要的定义或者声明的头文件；不要使用不是通过头文件直接包含进来的符号。一个例外的情况是， <tt class="docutils literal"><span class="pre">myfile.cc</span></tt> 可能会依赖它的头文件 <tt class="docutils literal"><span class="pre">myfile.h</span></tt> 中的 <tt class="docutils literal"><span class="pre">#includes</span></tt> 的头文件和前向声明。</p>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>内联函数<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>只有当函数很小，比如说10行或者更少的时候，我们才会去定义内联函数。</p>
+<div class="section" id="id8">
+<h4>定义 ：<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<p>to be continued.</p>
+</div>
+<div class="section" id="id9">
+<h4>优点 ：<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<p>to be continued.</p>
+</div>
+<div class="section" id="id10">
+<h4>缺点 ：<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<p>to be continued.</p>
+</div>
+<div class="section" id="id11">
+<h4>总结 ：<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
 <p>to be continued.</p>
 </div>
 </div>
+<div class="section" id="inl">
+<h3>-inl 文件<a class="headerlink" href="#inl" title="Permalink to this headline">¶</a></h3>
+<p>to be continued.</p>
+</div>
+<div class="section" id="id12">
+<h3>函数参数顺序<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p>to be continued.</p>
+</div>
+<div class="section" id="includes">
+<h3>includes 文件的名字和顺序<a class="headerlink" href="#includes" title="Permalink to this headline">¶</a></h3>
+<p>to be continued.</p>
+</div>
+</div>
+<div class="section" id="id13">
+<h2>范围<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<p>to be continued.</p>
 </div>
 </div>
 
