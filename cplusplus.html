@@ -183,7 +183,215 @@
 </div>
 <div class="section" id="id13">
 <h2>范围<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
-<p>to be continued.</p>
+<div class="section" id="id14">
+<h3>命名空间<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<p>应该鼓励在 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件中用未命名的命名空间。对于有名字的命名空间，要根据项目名，最好和它所在的目录一起来命名该命名空间。不要直接使用 <tt class="docutils literal"><span class="pre">using</span></tt> 语句来使用命名空间。</p>
+<div class="section" id="id15">
+<h4>定义 :<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<p>命名空间把全局范围分成不同的区域，有效的防止了全局范围内的命名冲突。</p>
+</div>
+<div class="section" id="id16">
+<h4>优点 :<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<p>除了类提供命名层次外，命名空间提供了这个功能。</p>
+<p>比如，如果两个不同的工程在全局都有一个叫做 <tt class="docutils literal"><span class="pre">Foo</span></tt> 的类，这种命名在编译或者运行时可能会有冲突。如果每一个工程把它们各自的代码放在自己的命名空间里，就可以避免这个问题。 <tt class="docutils literal"><span class="pre">project1::Foo</span></tt> 和 <tt class="docutils literal"><span class="pre">project2::Foo</span></tt> 就能把这种冲突给消除。</p>
+</div>
+<div class="section" id="id17">
+<h4>缺点 :<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h4>
+<p>命名空间可能会让人混淆，因为除了类的层次外，命名空间又提供了一种额外的命名层次。</p>
+<p>在头文件中使用未命名的命名空间很容易违反 C++ 的“只能定义一次”规则。</p>
+</div>
+<div class="section" id="id18">
+<h4>总结 ：<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<p>用下面的方法来使用命名空间。用下面的例子终结所有对命名空间的讨论。</p>
+<p>未命名的命名空间规则如下：</p>
+<ul class="simple">
+<li>允许甚至鼓励在 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件中使用未命名的命名空间，这样能够避免运行时的冲突：</li>
+</ul>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">namespace</span> <span class="p">{</span>                           <span class="c1">// This is in a .cc file.</span>
+
+<span class="c1">// The content of a namespace is not indented</span>
+<span class="k">enum</span> <span class="p">{</span> <span class="n">kUnused</span><span class="p">,</span> <span class="n">kEOF</span><span class="p">,</span> <span class="n">kError</span> <span class="p">};</span>       <span class="c1">// Commonly used tokens.</span>
+<span class="n">bool</span> <span class="nf">AtEof</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">pos_</span> <span class="o">==</span> <span class="n">kEOF</span><span class="p">;</span> <span class="p">}</span>  <span class="c1">// Uses our namespace&#39;s EOF.</span>
+
+<span class="p">}</span>  <span class="c1">// namespace</span>
+</pre></div>
+</div>
+<p>然而对于和特性类相关联的文件范围内声明，我们一般把它们定义成类型，数据成员或者静态成员，而不是把它们定义在未命名的命名空间里。</p>
+<ul class="simple">
+<li>不要在 <tt class="docutils literal"><span class="pre">.h</span></tt> 文件中使用未命名的命名空间。</li>
+</ul>
+<p>命名的命名空间规则如下：</p>
+<ul class="simple">
+<li>命名空间要把 <tt class="docutils literal"><span class="pre">includes</span></tt> 行，全局定义或声明，其它命名空间类的前向声明之后所有的内容都包含：</li>
+</ul>
+<div class="highlight-c"><div class="highlight"><pre><span class="c1">// In the .h file</span>
+<span class="n">namespace</span> <span class="n">mynamespace</span> <span class="p">{</span>
+
+<span class="c1">// All declarations are within the namespace scope.</span>
+<span class="c1">// Notice the lack of indentation.</span>
+<span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
+ <span class="nl">public:</span>
+   <span class="p">...</span>
+     <span class="kt">void</span> <span class="n">Foo</span><span class="p">();</span>
+     <span class="p">};</span>
+
+  <span class="p">}</span>  <span class="c1">// namespace mynamespace</span>
+  <span class="c1">// In the .cc file</span>
+  <span class="n">namespace</span> <span class="n">mynamespace</span> <span class="p">{</span>
+
+  <span class="c1">// Definition of functions is within scope of the namespace.</span>
+  <span class="kt">void</span> <span class="n">MyClass</span><span class="o">::</span><span class="n">Foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="p">}</span>
+
+ <span class="p">}</span>  <span class="c1">// namespace mynamespace</span>
+</pre></div>
+</div>
+<p>一般的 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件可能有更复杂的细节，比如对其它命名空间的类的引用等。</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;a.h&quot;</span>
+
+<span class="n">DEFINE_bool</span><span class="p">(</span><span class="n">someflag</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="s">&quot;dummy flag&quot;</span><span class="p">);</span>
+
+<span class="n">class</span> <span class="n">C</span><span class="p">;</span>  <span class="c1">// Forward declaration of class C in the global namespace.</span>
+<span class="n">namespace</span> <span class="n">a</span> <span class="p">{</span> <span class="n">class</span> <span class="n">A</span><span class="p">;</span> <span class="p">}</span>  <span class="c1">// Forward declaration of a::A.</span>
+
+<span class="n">namespace</span> <span class="n">b</span> <span class="p">{</span>
+
+<span class="p">...</span><span class="n">code</span> <span class="k">for</span> <span class="n">b</span><span class="p">...</span>         <span class="c1">// Code goes against the left margin.</span>
+
+<span class="p">}</span>  <span class="c1">// namespace b</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>不要声明命名空间 <tt class="docutils literal"><span class="pre">std</span></tt> 下的任何内容，包括标准库类的前向声明。声明命名空间 <tt class="docutils literal"><span class="pre">std</span></tt> 中的实体会导致未知的行为，比如不可移植性。为了声明标准库中的实体，可以包含相应的头文件。</li>
+<li>不应改直接用一个 <tt class="docutils literal"><span class="pre">using</span></tt> 语句使该命名空间中的所有名字都可用。</li>
+</ul>
+<div class="highlight-c"><div class="highlight"><pre><span class="c1">// Forbidden -- This pollutes the namespace.</span>
+<span class="n">using</span> <span class="n">namespace</span> <span class="n">foo</span><span class="p">;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>可以在任何位置用 <tt class="docutils literal"><span class="pre">using</span></tt> 声明，比如 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件，函数里，方法里或者 <tt class="docutils literal"><span class="pre">.h</span></tt> 文件中。</li>
+</ul>
+<div class="highlight-c"><div class="highlight"><pre><span class="c1">// OK in .cc files.</span>
+<span class="c1">// Must be in a function, method or class in .h files.</span>
+<span class="n">using</span> <span class="o">::</span><span class="n">foo</span><span class="o">::</span><span class="n">bar</span><span class="p">;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>可以在 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件的任何位置使用命名空间别名，在包含整个 <tt class="docutils literal"><span class="pre">.h</span></tt> 文件的有名字的命名空间内，函数和方法内，也可以使用命名空间别名。</li>
+</ul>
+<div class="highlight-c"><div class="highlight"><pre><span class="c1">// Shorten access to some commonly used names in .cc files.</span>
+<span class="n">namespace</span> <span class="n">fbz</span> <span class="o">=</span> <span class="o">::</span><span class="n">foo</span><span class="o">::</span><span class="n">bar</span><span class="o">::</span><span class="n">baz</span><span class="p">;</span>
+
+<span class="c1">// Shorten access to some commonly used names (in a .h file).</span>
+<span class="n">namespace</span> <span class="n">librarian</span> <span class="p">{</span>
+<span class="c1">// The following alias is available to all files including</span>
+<span class="c1">// this header (in namespace librarian):</span>
+<span class="c1">// alias names should therefore be chosen consistently</span>
+<span class="c1">// within a project.</span>
+<span class="n">namespace</span> <span class="n">pd_s</span> <span class="o">=</span> <span class="o">::</span><span class="n">pipeline_diagnostics</span><span class="o">::</span><span class="n">sidetable</span><span class="p">;</span>
+
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">my_inline_function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// namespace alias local to a function (or method).</span>
+    <span class="n">namespace</span> <span class="n">fbz</span> <span class="o">=</span> <span class="o">::</span><span class="n">foo</span><span class="o">::</span><span class="n">bar</span><span class="o">::</span><span class="n">baz</span><span class="p">;</span>
+      <span class="p">...</span>
+<span class="p">}</span>
+<span class="p">}</span>  <span class="c1">// namespace librarian</span>
+</pre></div>
+</div>
+<p>要知道 <tt class="docutils literal"><span class="pre">.h</span></tt> 文件中的别名在任何包含这个头文件的文件中都是有效的，所以那些公共的头文件（在工程外可用）和它们包含的一些头文件都应该避免使用别名，因为一般来说应该把公共 API 的范围控制到最小。</p>
+</div>
+</div>
+<div class="section" id="id19">
+<h3>嵌套类<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<p>当一个嵌套类是接口的一部分时，可能就会用到，但是最好用命名空间把它们的定义从全局范围隔离开来。</p>
+<div class="section" id="id20">
+<h4>定义<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
+<p>在一个类里面可以定义另一个类，也可以叫作成员类。</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">class</span> <span class="n">Foo</span> <span class="p">{</span>
+
+<span class="nl">private:</span>
+    <span class="c1">// Bar is a member class, nested within Foo.</span>
+    <span class="n">class</span> <span class="n">Bar</span> <span class="p">{</span>
+         <span class="p">...</span>
+    <span class="p">};</span>
+
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id21">
+<h4>优点<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h4>
+<p>当嵌套类（或者成员类）只在类里面被使用的话是很有用的；把它作为一个成员放在类里面比声明在外面要好的多。嵌套类可以前向声明在包含它的类里面，并且在 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件中定义它，这样可以避免在类中有嵌套类的定义，这样嵌套类的定义就只与实现文件有关了。</p>
+</div>
+<div class="section" id="id22">
+<h4>缺点<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h4>
+<p>嵌套类在被前向声明的时候只能连同包含它的类一起。因此，任何操作 <tt class="docutils literal"><span class="pre">Foo::Bar*</span></tt> 指针的头文件都必须包含 <tt class="docutils literal"><span class="pre">Foo</span></tt> 整个类的声明。</p>
+</div>
+<div class="section" id="id23">
+<h4>总结<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h4>
+<p>除了当嵌套类是接口的一部分外，不要把嵌套类声明成公开的，比如一些方法使用了这个类的选项。</p>
+</div>
+</div>
+<div class="section" id="id24">
+<h3>非成员函数，静态成员函数和全局函数<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<p>最好使用命名空间中的非成员函数或者静态成员函数，而不要使用全局函数。</p>
+<div class="section" id="id25">
+<h4>优点<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h4>
+<p>非成员函数和静态成员函数有时非常有用。把非成员函数放在命名空间中可以避免对全局作用域的污染。</p>
+</div>
+<div class="section" id="id26">
+<h4>缺点<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h4>
+<p>把非成员函数喝静态成员函数作为一个新类的成员或许会更有意义，特别是当它们想访问外部资源或者有明显的依赖关系的时候。</p>
+</div>
+<div class="section" id="id27">
+<h4>总结<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h4>
+<p>有时定义一个没有绑定到类的函数是很有用的，甚至是必须的。它们可以是非成员函数或者是静态成员函数。非成员函数不要对外部变量有依赖并且几乎要存在在一个命名空间里。相比于新创建一个类来把静态成员函数集合起来，使用命名空间可能更好一点。</p>
+<p>作为生产类，定义在同一个编译单元内的函数在被其它编译单元调用的时候会引入不必要的耦合和链接时的依赖关系，静态成员函数对这一点尤为敏感。考虑新建一个类或者可能的话把这些函数放在一个命名空间中。</p>
+<p>如果一定要定义一个非成员函数并且只有 <tt class="docutils literal"><span class="pre">.cc</span></tt> 文件用到它的话，用一个未名的命名空间或者 <tt class="docutils literal"><span class="pre">static</span></tt> 关键字（比如 <tt class="docutils literal"><span class="pre">static</span> <span class="pre">int</span> <span class="pre">Foo()</span></tt> ）来限制它们的范围。</p>
+</div>
+</div>
+<div class="section" id="id28">
+<h3>局部变量<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
+<p>尽可能将函数的局部变量限制在最小的作用范围内，最好在声明它的时候就初始化。</p>
+<p>C++ 允许在函数的任何地方声明变量。我们提倡在尽可能小的作用域里声明它们，离第一次使用越近越好。这样阅读的人也更容易找到它的声明知道变量的类型和初始值。特别的，应该用初始化代替声明和定义，比如：</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">f</span><span class="p">();</span>      <span class="c1">// Bad -- initialization separate from declaration.</span>
+</pre></div>
+</div>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">g</span><span class="p">();</span>  <span class="c1">// Good -- declaration has initialization.</span>
+</pre></div>
+</div>
+<p>注意 <tt class="docutils literal"><span class="pre">gcc</span></tt> 编译器可以正确执行 <tt class="docutils literal"><span class="pre">for</span> <span class="pre">(int</span> <span class="pre">i</span> <span class="pre">=</span> <span class="pre">0;</span> <span class="pre">i</span> <span class="pre">&lt;</span> <span class="pre">10;</span> <span class="pre">i++)</span></tt> (<tt class="docutils literal"><span class="pre">i</span></tt> 的作用域在循环里面)，因此你可以在其它的 <tt class="docutils literal"><span class="pre">for</span></tt> 循环中再次使用变量 <tt class="docutils literal"><span class="pre">i</span></tt> 。在 <tt class="docutils literal"><span class="pre">if</span></tt> 和 <tt class="docutils literal"><span class="pre">while</span></tt> 语句中这样声明也是正确的，比如：</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">while</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">p</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">))</span> <span class="n">str</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>警告一下：如果变量是一个对象，每当进入作用域都要调用其构造函数，每次离开作用域都要调用其析构函数。</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="c1">// Inefficient implementation:</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000000</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">Foo</span> <span class="n">f</span><span class="p">;</span>  <span class="c1">// My ctor and dtor get called 1000000 times each.</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>在循环外面声明这样的变量会更有效率一些：</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">Foo</span> <span class="n">f</span><span class="p">;</span>  <span class="c1">// My ctor and dtor get called once each.</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000000</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id29">
+<h3>静态变量和全局变量<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<p>类的静态变量或者全局变量是禁止的：由于构造和析构函数执行的顺序不确定性，很容易引起找不到定义的错误。然而 <tt class="docutils literal"><span class="pre">const</span></tt> 修饰的变量是可以这样声明的因为它们不会动态初始化或者析构。</p>
+<p>静态存储期的对象，包括全局变量，静态变量，静态成员变量，静态函数变量，一定要是简单的数据类型：整型，字符，浮点，数组或者结构。</p>
+<p>在 C++ 中，对类的静态变量的构造和初始化的顺序只是部分定义的，每次构建可能都不一样，这样就很可能出现很难查找的 bug。因此除了禁止类的全局变量，我们也不允许静态变量在函数中初始化，除非那些函数自身不依赖其它的全局变量。</p>
+<p>同样的，析构函数被调用的顺序和构造函数是相反的，由于构造顺序是不确定的，所以析构的顺序也是不确定的。比如，在程序结束的时候一个静态变量可能已经被销毁了，带是代码仍然在运行，可能在其它的线程里，想要获取它的值但是会失败。或者是一个静态 <tt class="docutils literal"><span class="pre">string</span></tt> 类型的变量肯能在销毁之前被另一个变量引用了，那么析构之后也会出错。</p>
+<p>总而言之，我们只允许普通数据类型的静态变量。所以完全不允许 <tt class="docutils literal"><span class="pre">vector</span></tt> (用 C 的数组代替) 或者 <tt class="docutils literal"><span class="pre">string</span></tt> （用 <tt class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">[]</span></tt> 代替） 的静态变量。</p>
+<p>如果你需要一个静态或者全局的类类型的变量，考虑在 <tt class="docutils literal"><span class="pre">main()</span></tt> 函数或者 <tt class="docutils literal"><span class="pre">pthread_once()</span></tt> 函数中用指针去初始化（）。注意一定要是一个原始的指针，因为聪明的指针析构存在我们正在避免的析构顺序问题。</p>
+</div>
 </div>
 </div>
 
