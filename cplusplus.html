@@ -129,7 +129,7 @@
 <h4>总结 ：<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
 <p>经验告诉我们如果一个函数超过了10行，就不要内联它。要当心析构函数，由于隐式成员和基类的析构，它们往往比看起来的要长！</p>
 <p>另外一个很有用的经验是 ：如果把一个含有循环和 <tt class="docutils literal"><span class="pre">switch</span></tt> 语句的函数声明为内联的，那么往往会使性能下降（除非，一般情况下，循环和 <tt class="docutils literal"><span class="pre">switch</span></tt> 是不会被执行的）。</p>
-<p>必须要要知道的是就算有些函数像上面定义的内联函数那样也是不能被内联的。比如，虚函数和迭代函数一般都不能被内联。让一个虚函数内联的主要原因是把它定义在类里面，不管是为了方便还是为它的行为提供文档参考，比如类成员的访问函数和设置函数。</p>
+<p>必须要知道的是就算有些函数像上面定义的内联函数那样也是不能被内联的。比如，虚函数和迭代函数一般都不能被内联。让一个虚函数内联的主要原因是把它定义在类里面，不管是为了方便还是为它的行为提供文档参考，比如类成员的访问函数和设置函数。</p>
 </div>
 </div>
 <div class="section" id="inl">
@@ -391,6 +391,177 @@
 <p>同样的，析构函数被调用的顺序和构造函数是相反的，由于构造顺序是不确定的，所以析构的顺序也是不确定的。比如，在程序结束的时候一个静态变量可能已经被销毁了，带是代码仍然在运行，可能在其它的线程里，想要获取它的值但是会失败。或者是一个静态 <tt class="docutils literal"><span class="pre">string</span></tt> 类型的变量肯能在销毁之前被另一个变量引用了，那么析构之后也会出错。</p>
 <p>总而言之，我们只允许普通数据类型的静态变量。所以完全不允许 <tt class="docutils literal"><span class="pre">vector</span></tt> (用 C 的数组代替) 或者 <tt class="docutils literal"><span class="pre">string</span></tt> （用 <tt class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">[]</span></tt> 代替） 的静态变量。</p>
 <p>如果你需要一个静态或者全局的类类型的变量，考虑在 <tt class="docutils literal"><span class="pre">main()</span></tt> 函数或者 <tt class="docutils literal"><span class="pre">pthread_once()</span></tt> 函数中用指针去初始化（）。注意一定要是一个原始的指针，因为聪明的指针析构存在我们正在避免的析构顺序问题。</p>
+</div>
+</div>
+<div class="section" id="id30">
+<h2>类<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h2>
+<p>类是 C++ 的基本单元。自然而然的，我们在项目中广泛的运用它。这一节列举了在写一个类的时候应该和不应改做的事情。</p>
+<div class="section" id="id31">
+<h3>构造函数<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
+<p>避免在构造函数中做很复杂的初始化工作（特别是那些可能会失败或者需要虚方法调用的初始化工作）。</p>
+<div class="section" id="id32">
+<h4>定义 ：<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h4>
+<p>可以在构造函数中执行初始化。</p>
+</div>
+<div class="section" id="id33">
+<h4>优点 ：<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h4>
+<p>排版方便；无需担心类是否被初始化了。</p>
+</div>
+<div class="section" id="id34">
+<h4>缺点 ：<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h4>
+<p>在构造函数中操作的问题如下:</p>
+<ul class="simple">
+<li>构造函数不容易报告错误，也禁止使用异常机制。</li>
+<li>如果操作失败了，就会有一个对象的初始化操作失败了，这是一种不确定的状态。</li>
+<li>如果构造函数中调用了虚函数，这些调用不会被派发到子类的实现中。即使你的类现在还有子类，但是未来对类很小的改变都会引起很大的错误。</li>
+<li>如果有人创建了这个类的一个全局变量（尽管违反了规则，但是他仍然这样做了），构造函数会在 <tt class="docutils literal"><span class="pre">main()</span></tt> 函数之前被调用，可能会打破一些构造函数中隐式的假设，比如，全局标志（gflag）还没有被初始化。</li>
+</ul>
+</div>
+<div class="section" id="id35">
+<h4>总结<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h4>
+<p>构造函数不能调用虚函数或者可能引起非致命的错误。如果你的对象需要重要的初始化，考虑用一个工厂函数或者 <tt class="docutils literal"><span class="pre">Init()</span></tt> 方法。</p>
+</div>
+</div>
+<div class="section" id="id36">
+<h3>默认构造函数<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h3>
+<p>如果你的类定义了成员变量，没有其它的构造函数，你要定义一个默认的够砸奥函数。否则，编译器会自己做构造操作，效果很差。</p>
+<div class="section" id="id37">
+<h4>定义 ：<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h4>
+<p>当我们 <tt class="docutils literal"><span class="pre">new</span></tt> 一个不带参数的类对象的时候，默认构造函数就会被调用。当调用 <tt class="docutils literal"><span class="pre">new[]</span></tt> （为数组）的时候，默认构造函数也会被调用。</p>
+</div>
+<div class="section" id="id38">
+<h4>优点 ：<a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h4>
+<p>默认将结构初始化成“不可能”的值，使调试变得更加容易。</p>
+</div>
+<div class="section" id="id39">
+<h4>缺点 ：<a class="headerlink" href="#id39" title="Permalink to this headline">¶</a></h4>
+<p>对于代码编写者来说，这是多余的工作。</p>
+</div>
+<div class="section" id="id40">
+<h4>总结 ：<a class="headerlink" href="#id40" title="Permalink to this headline">¶</a></h4>
+<p>如果你的类定义了成员变量并且没有其它的构造函数，你要定义一个默认的构造函数（一个不带参数的构造函数）。它最好能够使对象初始化之后，内部的状态保持一致和正确。</p>
+<p>这样做的原因是如果你没有其它的构造函数，也不定义一个默认构造函数的话，编译器会为你自动产生一个。但是产生的构造函数可能不会很明智的初始化你的对象。</p>
+<p>如果你的类是从其它类继承的并且你没有增加新的成员变量，你不许要再去新建一个默认构造函数。</p>
+</div>
+</div>
+<div class="section" id="id41">
+<h3>显式构造函数<a class="headerlink" href="#id41" title="Permalink to this headline">¶</a></h3>
+<p>用 C++ 的关键字 <tt class="docutils literal"><span class="pre">explicit</span></tt> 去修饰只含有一个参数的构造函数。</p>
+<div class="section" id="id42">
+<h4>定义 ：<a class="headerlink" href="#id42" title="Permalink to this headline">¶</a></h4>
+<p>一般来说，如果一个构造函数只有一个参数，可以把它用作一个转换。比如，如果你定义了 <tt class="docutils literal"><span class="pre">Foo::Foo(string</span> <span class="pre">name)</span></tt> ，然后当向一个需要 <tt class="docutils literal"><span class="pre">Foo</span></tt> 对象的函数传递一个 <tt class="docutils literal"><span class="pre">string</span></tt> 时，构造函数会被调用把这个字符床转换成一个 <tt class="docutils literal"><span class="pre">Foo</span></tt> 对象然后把这个对象传递给函数。这样有时很方便，但是当你不想这样做，麻烦也会随之而来。把构造函数声明成 <tt class="docutils literal"><span class="pre">explicit</span></tt> 的能够防止这样隐式转换的发生。</p>
+</div>
+<div class="section" id="id43">
+<h4>优点 ：<a class="headerlink" href="#id43" title="Permalink to this headline">¶</a></h4>
+<p>避免不合适的转换。</p>
+</div>
+<div class="section" id="id44">
+<h4>缺点 ：<a class="headerlink" href="#id44" title="Permalink to this headline">¶</a></h4>
+<p>无</p>
+</div>
+<div class="section" id="id45">
+<h4>总结 ：<a class="headerlink" href="#id45" title="Permalink to this headline">¶</a></h4>
+<p>我们希望所有只有一个参数的构造函数都是 <tt class="docutils literal"><span class="pre">explicit</span></tt> 的，总是用 <tt class="docutils literal"><span class="pre">explicit</span></tt> 去修饰只有一个参数的构造函数 ： <tt class="docutils literal"><span class="pre">explicit</span> <span class="pre">Foo(string</span> <span class="pre">name)</span></tt>;</p>
+<p>极少数情况下，当我们允许拷贝构造的时候，这就是是一个例外了，构造函数就不应改用 <tt class="docutils literal"><span class="pre">explicit</span></tt> 来修饰。透明包装其它类的类也是一个例外。这样例外的情况应该用注释说明清楚。</p>
+</div>
+</div>
+<div class="section" id="id46">
+<h3>拷贝构造函数<a class="headerlink" href="#id46" title="Permalink to this headline">¶</a></h3>
+<p>只有需要的时候才提供拷贝构造函数和赋值操作。否则，用 <tt class="docutils literal"><span class="pre">DISALLOW_COPY_AND_ASSIGN</span></tt> 去禁止他们。</p>
+<div class="section" id="id47">
+<h4>定义 ：<a class="headerlink" href="#id47" title="Permalink to this headline">¶</a></h4>
+<p>拷贝构造函数和复制操作用来创建对象的拷贝。在一些情况下，拷贝构造函数会被编译器隐式的调用，比如直接把值传给对象。</p>
+</div>
+<div class="section" id="id48">
+<h4>优点 ：<a class="headerlink" href="#id48" title="Permalink to this headline">¶</a></h4>
+<p>拷贝构造让拷贝对象更加容易。STL容器的所有类型都是可拷贝和被赋值的。拷贝构造比 <tt class="docutils literal"><span class="pre">CopyFrom()</span></tt> 类型的函数更有效率，因为它们在拷贝的时候结合了构造函数，编译器可能不把它们放在正文段中，这样可以避免堆的分配。</p>
+</div>
+<div class="section" id="id49">
+<h4>缺点 ：<a class="headerlink" href="#id49" title="Permalink to this headline">¶</a></h4>
+<p>在 C++ 中，隐式的对象拷贝是错误的重要来源。不像引用操作，由于很难去跟踪被传递的对象，拷贝构造也降低了程序的可读性，哪里修改的对象也变得难以跟踪。</p>
+</div>
+<div class="section" id="id50">
+<h4>总结 ：<a class="headerlink" href="#id50" title="Permalink to this headline">¶</a></h4>
+<p>基本没有类需要被拷贝。大多数都不需要拷贝构造和赋值操作。很多情况下，指针或者引用可以有拷贝一样的效果，且性能更好。比如，你可以向函数传递指针或者引用参数，而不是值，你也可以在 STL 容器中保存指针，而不是对象。</p>
+<p>如果你的类需要被拷贝，最好提供一个拷贝方法，比如 <tt class="docutils literal"><span class="pre">CopyFrom()</span></tt> 或者 <tt class="docutils literal"><span class="pre">Clone()</span></tt> 而不是用拷贝构造，因为这样的方法是不会被隐式调用的。如果在你的情形下，拷贝方法是不够的（比如性能要求或者你的类需要以值的形式存在 STL 容器中），那么提供一个拷贝构造和赋值操作。</p>
+<p>如果你的类不需要拷贝构造和赋值操作，必须显式的禁止它们。为了这样做，可以在类的 <tt class="docutils literal"><span class="pre">private</span></tt> 部分为拷贝构造和赋值操作声明一个假的声明 ：但是不要提供任何相关的定义（这样任何想要调用它们的操作都会有一个链接错误）。</p>
+<p>为了方便， <tt class="docutils literal"><span class="pre">DISALLOW_COPY_AND_ASSIGN</span></tt> 宏可以这样用：</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">// A macro to disallow the copy constructor and operator= functions</span>
+<span class="cp">// This should be used in the private: declarations for a class</span>
+<span class="cp">#define DISALLOW_COPY_AND_ASSIGN(TypeName) \</span>
+<span class="cp">    TypeName(const TypeName&amp;);               \</span>
+<span class="cp">    void operator=(const TypeName&amp;)</span>
+</pre></div>
+</div>
+<p>然后，在 <tt class="docutils literal"><span class="pre">Foo</span></tt> 类中：</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">class</span> <span class="n">Foo</span> <span class="p">{</span>
+    <span class="nl">public:</span>
+        <span class="n">Foo</span><span class="p">(</span><span class="kt">int</span> <span class="n">f</span><span class="p">);</span>
+         <span class="o">~</span><span class="n">Foo</span><span class="p">();</span>
+
+    <span class="nl">private:</span>
+        <span class="n">DISALLOW_COPY_AND_ASSIGN</span><span class="p">(</span><span class="n">Foo</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id51">
+<h3>结构和类的比较<a class="headerlink" href="#id51" title="Permalink to this headline">¶</a></h3>
+<p>当对象只包含数据的时候用结构，其余的情况都要用类。</p>
+<p>C++ 中结构和类关键字的表现几乎是一样的。我们人为为它们的添加自己的语义，因此我们必须为我们定义的数据类型使用合适的关键字。</p>
+<p>结构只能用在只包含数据的对象上，它可能也有一些关联的变量，但是没有存取之外的任何函数。存取操作是通过直接访问结构中的域来完成的，而不是通过方法调用。这里的方法指的是处理数据成员的方法，比如构造函数，析构函数， <tt class="docutils literal"><span class="pre">Initialize()</span></tt>, <tt class="docutils literal"><span class="pre">Reset()</span></tt>, <tt class="docutils literal"><span class="pre">Validate()</span></tt> 函数。</p>
+<p>如果需要其它的函数功能，用类会更合适。如果你不确定的话，就用类。</p>
+<p>当和 STL 结合使用的时候，可以为了仿函数和特征用结构代替类。</p>
+<p>注意结构和类中的成员变量有不通的命名规则。</p>
+</div>
+<div class="section" id="id52">
+<h3>继承<a class="headerlink" href="#id52" title="Permalink to this headline">¶</a></h3>
+<p>用组合往往比用继承要合适。当我们用继承的时候，要用 <tt class="docutils literal"><span class="pre">public</span></tt> 继承。</p>
+<div class="section" id="id53">
+<h4>定义 :<a class="headerlink" href="#id53" title="Permalink to this headline">¶</a></h4>
+<p>当一个子类从基类集成的时候，它就包含了基类定义的所有数据和操作。一般来说，C++ 的继承有两个主要的用途：实现继承，这种继承下子类继承了父类的代码；接口继承，只有方法名字被继承了。</p>
+</div>
+<div class="section" id="id54">
+<h4>优点 ：<a class="headerlink" href="#id54" title="Permalink to this headline">¶</a></h4>
+<p>实现继承通过复用基类定义的代码减少了代码量。因为继承是编译时声明，你和编译器都可以理解这些操作并且检查错误。接口继承是用来代码实现一个类暴露的特定 API。同样的，如果一个继承类没有定义必需的方法，编译器可以检查错误。</p>
+</div>
+<div class="section" id="id55">
+<h4>缺点 ：<a class="headerlink" href="#id55" title="Permalink to this headline">¶</a></h4>
+<p>对于实现继承，由于子类的代码包括基类和子类自己的，所以很难看懂代码。子类不能重写一个非虚函数，所以子类不能改变一些代码的实现。基类也会定义一些数据成员，所以还要区分基类的物理布局。</p>
+</div>
+<div class="section" id="id56">
+<h4>总结 ：<a class="headerlink" href="#id56" title="Permalink to this headline">¶</a></h4>
+<p>所有的继承必须是 <tt class="docutils literal"><span class="pre">public</span></tt> 的。如果你想要用 <tt class="docutils literal"><span class="pre">private</span></tt> 继承，要声明一个父类句柄的成员。</p>
+<p>不要过度使用实现继承。组合一般会更合适。尽量在只有 <tt class="docutils literal"><span class="pre">is-a</span></tt> 关系的时候才用继承：如果 <tt class="docutils literal"><span class="pre">Bar</span></tt> 是 <tt class="docutils literal"><span class="pre">Foo</span></tt> 的一种，那么可以让 <tt class="docutils literal"><span class="pre">Bar</span></tt> 继承 <tt class="docutils literal"><span class="pre">Foo</span></tt> 。</p>
+<p>尽量让析构函数是需函数。如果类里面有虚函数，那么析构函数应该也是虚函数。</p>
+<p>限定仅在子类访问的成员为 <tt class="docutils literal"><span class="pre">protected</span></tt> 的。注意数据成员应该是 <tt class="docutils literal"><span class="pre">private</span></tt> 的。</p>
+<p>当再次定义继承的虚函数的时候，在派生类中显式的声明它为 <tt class="docutils literal"><span class="pre">virtual</span></tt> 的。原因：如果没有 <tt class="docutils literal"><span class="pre">virtual</span></tt> 的话，读者需要检查它所有的祖先来确定它是否是虚函数。</p>
+</div>
+</div>
+<div class="section" id="id57">
+<h3>多重继承<a class="headerlink" href="#id57" title="Permalink to this headline">¶</a></h3>
+<p>很少情况下，多重实现继承才是有用的。只有当最多一个基类有实现代码，其它基类都是接口类的时候，才允许多重继承。</p>
+<div class="section" id="id58">
+<h4>定义 ：<a class="headerlink" href="#id58" title="Permalink to this headline">¶</a></h4>
+<p>多重继承允许一个子类有多余一个的基类。要将纯接口的基类和有实现的基类分开。</p>
+</div>
+<div class="section" id="id59">
+<h4>优点 ：<a class="headerlink" href="#id59" title="Permalink to this headline">¶</a></h4>
+<p>多重继承比单继承可以重用更多的代码。</p>
+</div>
+<div class="section" id="id60">
+<h4>缺点 ：<a class="headerlink" href="#id60" title="Permalink to this headline">¶</a></h4>
+<p>极少情况下多重继承才有用。当觉得多重继承看上去是个解决方法的时候，你一般可以找到一个不同的更加明确清晰的解决方案。</p>
+</div>
+<div class="section" id="id61">
+<h4>总结 ：<a class="headerlink" href="#id61" title="Permalink to this headline">¶</a></h4>
+<p>只有当所有的基类，最多只有一个不是纯接口，其它都是的情况下，才去用多重继承。为了保证这些类是纯接口，必须以 <tt class="docutils literal"><span class="pre">Interface</span></tt> 作为后缀。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">在 Windows系统中有一个例外</p>
+</div>
+</div>
 </div>
 </div>
 </div>
