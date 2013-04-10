@@ -534,7 +534,7 @@
 <h4>总结 ：<a class="headerlink" href="#id56" title="Permalink to this headline">¶</a></h4>
 <p>所有的继承必须是 <tt class="docutils literal"><span class="pre">public</span></tt> 的。如果你想要用 <tt class="docutils literal"><span class="pre">private</span></tt> 继承，要声明一个父类句柄的成员。</p>
 <p>不要过度使用实现继承。组合一般会更合适。尽量在只有 <tt class="docutils literal"><span class="pre">is-a</span></tt> 关系的时候才用继承：如果 <tt class="docutils literal"><span class="pre">Bar</span></tt> 是 <tt class="docutils literal"><span class="pre">Foo</span></tt> 的一种，那么可以让 <tt class="docutils literal"><span class="pre">Bar</span></tt> 继承 <tt class="docutils literal"><span class="pre">Foo</span></tt> 。</p>
-<p>尽量让析构函数是需函数。如果类里面有虚函数，那么析构函数应该也是虚函数。</p>
+<p>尽量让析构函数是虚函数。如果类里面有虚函数，那么析构函数应该也是虚函数。</p>
 <p>限定仅在子类访问的成员为 <tt class="docutils literal"><span class="pre">protected</span></tt> 的。注意数据成员应该是 <tt class="docutils literal"><span class="pre">private</span></tt> 的。</p>
 <p>当再次定义继承的虚函数的时候，在派生类中显式的声明它为 <tt class="docutils literal"><span class="pre">virtual</span></tt> 的。原因：如果没有 <tt class="docutils literal"><span class="pre">virtual</span></tt> 的话，读者需要检查它所有的祖先来确定它是否是虚函数。</p>
 </div>
@@ -561,6 +561,31 @@
 <p class="first admonition-title">Note</p>
 <p class="last">在 Windows系统中有一个例外</p>
 </div>
+</div>
+</div>
+<div class="section" id="id62">
+<h3>接口<a class="headerlink" href="#id62" title="Permalink to this headline">¶</a></h3>
+<p>接口是满足特定条件的类，往往以 <tt class="docutils literal"><span class="pre">Interface</span></tt> 结尾，但是不是必须的。</p>
+<div class="section" id="id63">
+<h4>定义 ：<a class="headerlink" href="#id63" title="Permalink to this headline">¶</a></h4>
+<p>如果一个类满足下面的条件，它就是纯接口 ：
+* 它只有公共的纯虚函数和静态方法（下文提到的析构函数除外）。
+* 不能有非静态数据成员。
+* 不需要定义任何构造函数，如果提供的话，它必须没有参数并且是 <tt class="docutils literal"><span class="pre">protected</span></tt> 的。
+* 如果它是子类，那么它也是从满足上面条件并且以 <tt class="docutils literal"><span class="pre">Interface</span></tt> 结尾的类继承而来。</p>
+<p>由于声明了纯虚函数，接口不能被实例化。为了保证接口类的所有实现都能被正确的销毁，必须为它声明一个虚析构函数（上面第一条要求的例外，析构函数不能是纯虚的），详见 Stroustrup 的 The C++ Programming Language 第三版 12.4 章节。</p>
+</div>
+<div class="section" id="id64">
+<h4>优点 ：<a class="headerlink" href="#id64" title="Permalink to this headline">¶</a></h4>
+<p>为一个类加上 <tt class="docutils literal"><span class="pre">Interface</span></tt> 后缀让别人知道不能为它增加实现的方法或者非静态数据成员。这一点在多重继承中尤为重要。除此之外，接口的概念对 Java 程序员来说已经很熟悉了。</p>
+</div>
+<div class="section" id="id65">
+<h4>缺点 ：<a class="headerlink" href="#id65" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">Interface</span></tt> 后缀增加了类名的长度，使程序难以阅读和理解。同时，接口可能被认为是实现细节，不能暴露给用户。</p>
+</div>
+<div class="section" id="id66">
+<h4>总结 ：<a class="headerlink" href="#id66" title="Permalink to this headline">¶</a></h4>
+<p>只有当一个类满足上面的要求才能加上 <tt class="docutils literal"><span class="pre">Interface</span></tt> 后缀。但是满足上面条件的类也不一定要加上 <tt class="docutils literal"><span class="pre">Interface</span></tt> 后缀。</p>
 </div>
 </div>
 </div>
