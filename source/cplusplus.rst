@@ -866,7 +866,7 @@ cpplint
 
 你可以会写一个接受 ``const string&`` 参数的函数去重载另一个接受 ``const char*`` 参数的函数。
 
-.. add-block:: c
+.. code-block:: c
 
     class MyClass {
         public :
@@ -914,7 +914,8 @@ cpplint
 一个例外是当函数是 ``.cc`` 文件中的静态函数（或者在未名命名空间中），这种情况下，由于函数的使用太局部了所以缺点不适用。
 
 另一个例外是默认参数用来模拟可变参数列表。
-.. add-block:: c
+
+.. code-block:: c
     
     // Support up to 4 params by using a default empty AlphaNum.
     string StrCat(const AlphaNum &a,
